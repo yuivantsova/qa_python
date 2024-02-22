@@ -104,7 +104,6 @@ class TestBooksCollector:
 
         collector.set_book_genre('Сияние', 'Ужасы')
 
-        collector.get_books_for_children()
         assert len(collector.get_books_for_children()) == 0
 
     @pytest.mark.parametrize('name_1, name_2, result',
