@@ -17,7 +17,6 @@ class TestBooksCollector:
         # словарь books_rating, который нам возвращает метод get_books_rating, имеет длину 2
         assert len(collector.get_books_genre()) == 2
 
-
     def test_list_of_genre_true(self, collector):
         for genre in ['Фантастика', 'Ужасы', 'Детективы', 'Мультфильмы', 'Комедии']:
             assert genre in collector.genre
@@ -25,11 +24,13 @@ class TestBooksCollector:
     def test_list_of_genre_age_rating(self, collector):
         for genre_age_rating in ['Ужасы', 'Детективы']:
             assert genre_age_rating in collector.genre
+
     @pytest.mark.parametrize('name', ['Жареные зеленые помидоры в кафе "Полуста"',
                                       'Жареные зеленые помидоры в кафе "Полустан"'])
     def test_add_new_book_41_and_42_symbols(self, collector, name):
         collector.add_new_book(name)
         assert len(collector.get_books_genre()) == 0
+
     @pytest.mark.parametrize('name', ['Жареные зеленые помидоры в кафе "Полуст"', 'G'])
     def test_add_new_book_39_and_1_symbols(self, collector, name):
         collector.add_new_book(name)
@@ -52,36 +53,31 @@ class TestBooksCollector:
         collector.add_new_book('Хоббит, туда и обратно')
         collector.add_new_book('Хоббит, туда и обратно')
         assert len(collector.get_books_genre()) == 1
-    @pytest.mark.parametrize('name',['Хоббит, туда и обратно'])
-    def test_add_new_book_no_genre(self, collector, new_book, name):
-        books_genre = collector.get_books_genre()
-        assert books_genre[name] == ''
-    @pytest.mark.parametrize('name, genre',[['Хоббит, туда и обратно', 'Фантастика']])
-    def test_set_book_genre_book_true_genre_true(self, collector, new_book, name, genre):
-        collector.set_book_genre(name, genre)
-        books_genre = collector.get_books_genre()
-        assert books_genre[name] == genre
-    @pytest.mark.parametrize('name, genre', [['Хоббит, туда и обратно', 'Фентази']])
-    def test_set_book_genre_book_true_genre_false(self, collector, new_book, name, genre):
-        collector.set_book_genre(name, genre)
-        books_genre = collector.get_books_genre()
-        assert books_genre[name] == ''
-    @pytest.mark.parametrize('name, genre', [['Хоббит, туда и обратно', 'Фантастика']])
-    def test_set_book_genre_book_false_genre_true(self, collector, name, genre):
-        collector.set_book_genre(name, genre)
-        books_genre = collector.get_books_genre()
-        assert books_genre == {}
 
-    def test_set_book_genre_book_false_genre_false(self, collector):
-        collector.set_book_genre('Артур', 'Фентази')
-        books_genre = collector.get_books_genre()
-        assert books_genre == {}
-    @pytest.mark.parametrize('name, genre', [['Хоббит, туда и обратно', 'Ужасы']])
-    def test_get_book_genre_book_true(self, collector, new_book, name, genre):
+    @pytest.mark.parametrize('name', ['Хоббит, туда и обратно'])
+    def test_add_new_book_no_genre(self, collector, new_book, name):
+
+        assert collector.get_book_genre(name) == ''
+
+    @pytest.mark.parametrize('name, genre, result',
+    [
+        ['Хоббит, туда и обратно', 'Фантастика', 'Фантастика'],
+        ['Хоббит, туда и обратно', 'Фентази', ''],
+    ])
+    def test_set_book_genre_book_true(self, collector, new_book, name, genre, result):
         collector.set_book_genre(name, genre)
-        collector.get_book_genre(name)
-        books_genre = collector.get_books_genre()
-        assert books_genre.get(name) == genre
+
+        assert collector.get_book_genre(name) == result
+
+    @pytest.mark.parametrize('name, genre',
+                             [
+                                 ['Хоббит, туда и обратно', 'Фантастика'],
+                                 ['Артур', 'Фентази']
+                             ])
+    def test_set_book_genre_book_false(self, collector, name, genre):
+        collector.set_book_genre(name, genre)
+
+        assert collector.get_book_genre(name) == None
 
     def test_get_books_with_specific_genre_three_books(self, collector):
         collector.add_new_book('Молчание ягнят')
@@ -94,7 +90,6 @@ class TestBooksCollector:
 
         assert len(collector.get_books_with_specific_genre('Ужасы')) == 2
 
-
     def test_get_books_for_children_two_books_added(self, collector):
         collector.add_new_book('Незнайка')
         collector.add_new_book('Один дома')
@@ -104,7 +99,6 @@ class TestBooksCollector:
 
         assert len(collector.get_books_for_children()) == 2
 
-
     def test_get_books_for_children_two_books_not_added(self, collector):
         collector.add_new_book('Сияние')
 
@@ -113,14 +107,18 @@ class TestBooksCollector:
         collector.get_books_for_children()
         assert len(collector.get_books_for_children()) == 0
 
-    def test_add_book_in_favorites_two_book_added(self, collector):
-        collector.add_new_book('Незнайка')
-        collector.add_new_book('Сияние')
+    @pytest.mark.parametrize('name_1, name_2, result',
+                             [
+                                 ['Незнайка', 'Сияние', 2]
+                             ])
+    def test_add_book_in_favorites_two_book_added(self, collector, name_1, name_2, result):
+        collector.add_new_book(name_1)
+        collector.add_new_book(name_2)
 
-        collector.add_book_in_favorites('Незнайка')
-        collector.add_book_in_favorites('Сияние')
+        collector.add_book_in_favorites(name_1)
+        collector.add_book_in_favorites(name_2)
 
-        assert len(collector.get_list_of_favorites_books()) == 2
+        assert len(collector.get_list_of_favorites_books()) == result
 
     @pytest.mark.parametrize('name', ['Хоббит, туда и обратно'])
     def test_add_book_in_favorites_same_book_not_added(self, collector, new_book, name):
@@ -133,10 +131,9 @@ class TestBooksCollector:
     def test_add_book_in_favorites_book_not_book_genre(self, collector):
         collector.add_book_in_favorites('Незнайка')
 
-        assert len(collector.favorites) == 0
+        assert len(collector.get_list_of_favorites_books()) == 0
 
-
-    def test_delete_book_from_favorites_two_books_deleted(self,collector):
+    def test_delete_book_from_favorites_two_books_deleted(self, collector):
 
         collector.add_new_book('Незнайка')
         collector.add_new_book('Сияние')
@@ -147,7 +144,7 @@ class TestBooksCollector:
         collector.delete_book_from_favorites('Незнайка')
         collector.delete_book_from_favorites('Сияние')
 
-        assert len(collector.favorites) == 0
+        assert len(collector.get_list_of_favorites_books()) == 0
 
     def test_delete_book_from_favorites_book_not_in_favorites(self, collector):
 
@@ -155,7 +152,7 @@ class TestBooksCollector:
 
         collector.delete_book_from_favorites('Незнайка')
 
-        assert len(collector.favorites) == 0 and len(collector.books_genre) == 1
+        assert len(collector.get_list_of_favorites_books()) == 0
 
 
 
